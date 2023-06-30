@@ -55,15 +55,15 @@ const PokemonByNamePage: NextPage<Props> = ({ pokemon }) => {
 
           <Grid xs={12} sm={8}>
             <Card>
-              <Card.Header css={{display: 'flex', justifyContent: 'space-between'}}>
+              <Card.Header css={{display: 'flex', justifyContent: 'space-around'}}>
                 <Text h1 transform='capitalize'>{pokemon.name}</Text>
-                <Button 
-                  color='gradient' 
-                  ghost={!isInFavorites}
-                  onClick={onToggleFavorites}
-                >
-                  { isInFavorites ? 'En favorito' : 'Guardar en Favorito'}
-                </Button>
+                  <Button 
+                    color='gradient' 
+                    ghost={!isInFavorites}
+                    onClick={onToggleFavorites}
+                    >
+                    { isInFavorites ? 'En favorito' : 'Guardar en Favorito'}
+                  </Button>
               </Card.Header>
               <Card.Body>
                 <Text size={30}>Sprites:</Text>
@@ -114,7 +114,8 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
         name
       }
     })),
-    fallback: false
+    // fallback: false
+    fallback: 'blocking'
   }
 }
 
@@ -124,10 +125,23 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
 
   const {name} = params as {name: string}
 
+  const pokemon =  await getPokemonIfo(name)
+
+  if (!pokemon) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
+ 
+
   return {
     props: {
-     pokemon: await getPokemonIfo(name)
-    }
+     pokemon
+    },
+    revalidate: 86400
   }
 }
 

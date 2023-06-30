@@ -61,6 +61,7 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
                   color='gradient' 
                   ghost={!isInFavorites}
                   onClick={onToggleFavorites}
+                  css={{ display: 'flex', justifyContent: 'center', width: '50%'}}
                 >
                   { isInFavorites ? 'En favorito' : 'Guardar en Favorito'}
                 </Button>
@@ -113,7 +114,8 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
         id
       }
     })),
-    fallback: false
+    // fallback: false
+    fallback: 'blocking'
   }
 }
 
@@ -122,11 +124,23 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 export const getStaticProps: GetStaticProps = async ({params}) => {
 
   const {id} = params as {id: string}
+
+  const pokemon = await getPokemonIfo(id)
+
+  if (!pokemon) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
  
   return {
     props: {
-     pokemon: await getPokemonIfo(id)
-    }
+     pokemon
+    },
+    revalidate: 86400
   }
 }
 
